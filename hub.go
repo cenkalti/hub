@@ -12,7 +12,7 @@ type Event interface {
 // which are subscribed for a specific event type.
 type Hub struct {
 	subscribers map[int][]func(Event)
-	sync.RWMutex
+	m           sync.RWMutex
 }
 
 // New returns pointer to a new Hub.
@@ -24,20 +24,20 @@ func New() *Hub {
 // The caller must receive messages from the retured channel.
 // Otherwise, the next Publish() will hang.
 func (h *Hub) Subscribe(kind int, handler func(Event)) {
-	h.Lock()
+	h.m.Lock()
 	h.subscribers[kind] = append(h.subscribers[kind], handler)
-	h.Unlock()
+	h.m.Unlock()
 }
 
 // Publish an event to the subscribers.
 func (h *Hub) Publish(e Event) {
-	h.RLock()
+	h.m.RLock()
 	if handlers, ok := h.subscribers[e.Kind()]; ok {
 		for _, handler := range handlers {
 			handler(e)
 		}
 	}
-	h.RUnlock()
+	h.m.RUnlock()
 }
 
 // DefaultHub is the default Hub used by Publish and Subscribe.
