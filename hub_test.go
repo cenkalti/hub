@@ -16,10 +16,10 @@ func (e testEvent) Kind() int {
 func TestPubSub(t *testing.T) {
 	h := New()
 
-	c := h.Sub(testKind)
+	c := h.Subscribe(testKind)
 
 	go func() {
-		h.Pub(testEvent("foo"))
+		h.Publish(testEvent("foo"))
 	}()
 
 	select {

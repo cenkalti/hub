@@ -15,7 +15,7 @@ func New() *Hub {
 	return &Hub{subscribers: make(map[int][]chan Event)}
 }
 
-func (h *Hub) Sub(kind int) chan Event {
+func (h *Hub) Subscribe(kind int) chan Event {
 	c := make(chan Event)
 	h.Lock()
 	h.subscribers[kind] = append(h.subscribers[kind], c)
@@ -23,7 +23,7 @@ func (h *Hub) Sub(kind int) chan Event {
 	return c
 }
 
-func (h *Hub) Pub(e Event) {
+func (h *Hub) Publish(e Event) {
 	h.RLock()
 	if subscribers, ok := h.subscribers[e.Kind()]; ok {
 		for _, c := range subscribers {
@@ -45,10 +45,10 @@ func (h *Hub) Close() {
 
 var DefaultHub = New()
 
-func Sub(kind int) chan Event {
-	return DefaultHub.Sub(kind)
+func Subscribe(kind int) chan Event {
+	return DefaultHub.Subscribe(kind)
 }
 
-func Pub(e Event) {
-	DefaultHub.Pub(e)
+func Publish(e Event) {
+	DefaultHub.Publish(e)
 }
