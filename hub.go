@@ -1,7 +1,9 @@
+// Package hub provides a simple event dispatcher for publish/subscribe pattern.
 package hub
 
 import "sync"
 
+// Event is an interface for published events.
 type Event interface {
 	Kind() int
 }
@@ -52,12 +54,15 @@ func (h *Hub) Close() {
 	h.Unlock()
 }
 
+// DefaultHub is the default Hub used by Publish and Subscribe.
 var DefaultHub = New()
 
+// Subscribe for the event of specific kind in the DefaultHub.
 func Subscribe(kind int) chan Event {
 	return DefaultHub.Subscribe(kind)
 }
 
+// Publish an event to the subscribers in DefaultHub.
 func Publish(e Event) {
 	DefaultHub.Publish(e)
 }
