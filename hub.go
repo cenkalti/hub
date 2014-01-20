@@ -6,15 +6,21 @@ type Event interface {
 	Kind() int
 }
 
+// Hub is an event dispatcher, publishes events to the subscribers
+// which are subscribed for a specific event type.
 type Hub struct {
 	subscribers map[int][]chan Event
 	sync.RWMutex
 }
 
+// New returns pointer to a new Hub.
 func New() *Hub {
 	return &Hub{subscribers: make(map[int][]chan Event)}
 }
 
+// Subscribe for the event of specific kind.
+// The caller must receive messages from the retured channel.
+// Otherwise, the next Publish() will hang.
 func (h *Hub) Subscribe(kind int) chan Event {
 	c := make(chan Event)
 	h.Lock()
@@ -23,6 +29,7 @@ func (h *Hub) Subscribe(kind int) chan Event {
 	return c
 }
 
+// Publish an event to the subscribers.
 func (h *Hub) Publish(e Event) {
 	h.RLock()
 	if subscribers, ok := h.subscribers[e.Kind()]; ok {
@@ -33,6 +40,8 @@ func (h *Hub) Publish(e Event) {
 	h.RUnlock()
 }
 
+// Close all channels returned by Subscribe().
+// Afther this is called, Publish() will panic.
 func (h *Hub) Close() {
 	h.Lock()
 	for _, subscribers := range h.subscribers {
