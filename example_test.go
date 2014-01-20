@@ -19,14 +19,12 @@ type EventA struct {
 // Implement hub.Event interface
 func (e EventA) Kind() int { return happenedA }
 
-func ExampleHub() {
-	h := New()
-
-	h.Subscribe(happenedA, func(e Event) {
+func Example() {
+	Subscribe(happenedA, func(e Event) {
 		a := e.(EventA) // Cast to concrete type
 		fmt.Println(a.arg1 + a.arg2)
 	})
 
-	h.Publish(EventA{2, 3})
+	Publish(EventA{2, 3})
 	// Output: 5
 }
