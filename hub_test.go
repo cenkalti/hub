@@ -1,9 +1,6 @@
 package hub
 
-import (
-	"testing"
-	"time"
-)
+import "testing"
 
 const testKind = 1
 const testValue = "foo"
@@ -15,20 +12,13 @@ func (e testEvent) Kind() int {
 }
 
 func TestPubSub(t *testing.T) {
+	var s string
+
 	h := New()
+	h.Subscribe(testKind, func(e Event) { s = string(e.(testEvent)) })
+	h.Publish(testEvent(testValue))
 
-	c := h.Subscribe(testKind)
-
-	go func() {
-		h.Publish(testEvent(testValue))
-	}()
-
-	select {
-	case received := <-c:
-		if received.(testEvent) != testValue {
-			t.Errorf("invalid value: %s", received)
-		}
-	case <-time.After(time.Second):
-		t.Error("timeout")
+	if s != testValue {
+		t.Errorf("invalid value: %s", s)
 	}
 }
