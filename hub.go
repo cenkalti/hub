@@ -39,16 +39,12 @@ func (h *Hub) Close() {
 	h.Unlock()
 }
 
-var defaultHub *Hub
-
-func init() {
-	defaultHub = New()
-}
+var DefaultHub = New()
 
 func Sub(eventType int) chan interface{} {
-	return defaultHub.Sub(eventType)
+	return DefaultHub.Sub(eventType)
 }
 
 func Pub(eventType int, event interface{}) {
-	defaultHub.Pub(eventType, event)
+	DefaultHub.Pub(eventType, event)
 }
