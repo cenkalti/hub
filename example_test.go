@@ -6,7 +6,7 @@ import (
 
 // Different event kinds
 const (
-	happenedA = iota
+	happenedA Kind = iota
 	happenedB
 	happenedC
 )
@@ -17,7 +17,7 @@ type EventA struct {
 }
 
 // Implement hub.Event interface
-func (e EventA) Kind() int { return happenedA }
+func (e EventA) Kind() Kind { return happenedA }
 
 func Example() {
 	Subscribe(happenedA, func(e Event) {
