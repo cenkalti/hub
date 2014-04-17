@@ -26,13 +26,21 @@ func New() *Hub {
 }
 
 // Subscribe registers the handler for the event of a specific kind.
-func (h *Hub) Subscribe(kind Kind, handler func(Event)) {
+func (h *Hub) Subscribe(kind Kind, handler func(Event)) (cancel func()) {
 	h.m.Lock()
 	if h.subscribers[kind] == nil {
 		h.subscribers[kind] = list.New()
 	}
-	h.subscribers[kind].PushBack(handler)
+	el := h.subscribers[kind].PushBack(handler)
 	h.m.Unlock()
+	return func() {
+		h.m.Lock()
+		h.subscribers[kind].Remove(el)
+		if h.subscribers[kind].Len() == 0 {
+			delete(h.subscribers, kind)
+		}
+		h.m.Unlock()
+	}
 }
 
 // Publish an event to the subscribers.
@@ -51,8 +59,8 @@ var DefaultHub = New()
 
 // Subscribe registers the handler for the event of a specific kind
 // in the DefaultHub.
-func Subscribe(kind Kind, handler func(Event)) {
-	DefaultHub.Subscribe(kind, handler)
+func Subscribe(kind Kind, handler func(Event)) (cancel func()) {
+	return DefaultHub.Subscribe(kind, handler)
 }
 
 // Publish an event to the subscribers in DefaultHub.
