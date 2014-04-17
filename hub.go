@@ -22,36 +22,42 @@ type Hub struct {
 
 // New returns pointer to a new Hub.
 func New() *Hub {
-	return &Hub{subscribers: make(map[Kind]*list.List)}
+	return &Hub{
+		subscribers: make(map[Kind]*list.List),
+	}
 }
 
 // Subscribe registers the handler for the event of a specific kind.
 func (h *Hub) Subscribe(kind Kind, handler func(Event)) (cancel func()) {
 	h.m.Lock()
+	defer h.m.Unlock()
+
 	if h.subscribers[kind] == nil {
 		h.subscribers[kind] = list.New()
 	}
 	el := h.subscribers[kind].PushBack(handler)
-	h.m.Unlock()
+
 	return func() {
 		h.m.Lock()
+		defer h.m.Unlock()
+
 		h.subscribers[kind].Remove(el)
 		if h.subscribers[kind].Len() == 0 {
 			delete(h.subscribers, kind)
 		}
-		h.m.Unlock()
 	}
 }
 
 // Publish an event to the subscribers.
 func (h *Hub) Publish(e Event) {
 	h.m.RLock()
+	defer h.m.RUnlock()
+
 	if handlers, ok := h.subscribers[e.Kind()]; ok {
 		for el := handlers.Front(); el != nil; el = el.Next() {
 			el.Value.(func(Event))(e)
 		}
 	}
-	h.m.RUnlock()
 }
 
 // DefaultHub is the default Hub used by Publish and Subscribe.
