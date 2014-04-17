@@ -1,7 +1,10 @@
 // Package hub provides a simple event dispatcher for publish/subscribe pattern.
 package hub
 
-import "sync"
+import (
+	"container/list"
+	"sync"
+)
 
 type Kind int
 
@@ -13,19 +16,22 @@ type Event interface {
 // Hub is an event dispatcher, publishes events to the subscribers
 // which are subscribed for a specific event type.
 type Hub struct {
-	subscribers map[Kind][]func(Event)
+	subscribers map[Kind]*list.List
 	m           sync.RWMutex
 }
 
 // New returns pointer to a new Hub.
 func New() *Hub {
-	return &Hub{subscribers: make(map[Kind][]func(Event))}
+	return &Hub{subscribers: make(map[Kind]*list.List)}
 }
 
 // Subscribe registers the handler for the event of a specific kind.
 func (h *Hub) Subscribe(kind Kind, handler func(Event)) {
 	h.m.Lock()
-	h.subscribers[kind] = append(h.subscribers[kind], handler)
+	if h.subscribers[kind] == nil {
+		h.subscribers[kind] = list.New()
+	}
+	h.subscribers[kind].PushBack(handler)
 	h.m.Unlock()
 }
 
@@ -33,8 +39,8 @@ func (h *Hub) Subscribe(kind Kind, handler func(Event)) {
 func (h *Hub) Publish(e Event) {
 	h.m.RLock()
 	if handlers, ok := h.subscribers[e.Kind()]; ok {
-		for _, handler := range handlers {
-			handler(e)
+		for el := handlers.Front(); el != nil; el = el.Next() {
+			el.Value.(func(Event))(e)
 		}
 	}
 	h.m.RUnlock()
