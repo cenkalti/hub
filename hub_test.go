@@ -22,3 +22,16 @@ func TestPubSub(t *testing.T) {
 		t.Errorf("invalid value: %s", s)
 	}
 }
+
+func TestCancel(t *testing.T) {
+	var called bool
+
+	h := New()
+	cancel := h.Subscribe(testKind, func(e Event) { called = true })
+	cancel()
+	h.Publish(testEvent(testValue))
+
+	if called {
+		t.Error("unexpected call")
+	}
+}
