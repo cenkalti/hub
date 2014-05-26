@@ -1,4 +1,5 @@
 // Package hub provides a simple event dispatcher for publish/subscribe pattern.
+// Optimized for publish calls.
 package hub
 
 import "sync"
@@ -16,6 +17,11 @@ type Hub struct {
 	subscribers map[Kind][]handler
 	m           sync.RWMutex
 	seq         uint64
+}
+
+type handler struct {
+	f  func(Event)
+	id uint64
 }
 
 // New returns pointer to a new Hub.
@@ -68,9 +74,4 @@ func Subscribe(kind Kind, f func(Event)) (cancel func()) {
 // Publish an event to the subscribers in DefaultHub.
 func Publish(e Event) {
 	DefaultHub.Publish(e)
-}
-
-type handler struct {
-	f  func(Event)
-	id uint64
 }
