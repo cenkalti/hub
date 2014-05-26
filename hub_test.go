@@ -22,11 +22,3 @@ func TestPubSub(t *testing.T) {
 		t.Errorf("invalid value: %s", s)
 	}
 }
-
-func BenchmarkPublish(b *testing.B) {
-	h := New()
-	h.Subscribe(testKind, func(e Event) {})
-	for i := 0; i < b.N; i++ {
-		h.Publish(testEvent(testValue))
-	}
-}
