@@ -1,8 +1,6 @@
 package hub
 
-import (
-	"fmt"
-)
+import "fmt"
 
 // Different event kinds
 const (
