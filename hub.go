@@ -23,16 +23,14 @@ type handler struct {
 	id uint64
 }
 
-// New returns pointer to a new Hub.
-func New() *Hub {
-	return &Hub{subscribers: make(map[int][]handler)}
-}
-
 // Subscribe registers f for the event of a specific kind.
 func (h *Hub) Subscribe(kind int, f func(Event)) (cancel func()) {
 	h.m.Lock()
 	h.seq++
 	id := h.seq
+	if h.subscribers == nil {
+		h.subscribers = make(map[int][]handler)
+	}
 	h.subscribers[kind] = append(h.subscribers[kind], handler{id: id, f: f})
 	h.m.Unlock()
 	return func() {
@@ -63,7 +61,7 @@ func (h *Hub) Publish(e Event) {
 }
 
 // DefaultHub is the default Hub used by Publish and Subscribe.
-var DefaultHub = New()
+var DefaultHub Hub
 
 // Subscribe registers f for the event of a specific kind in the DefaultHub.
 func Subscribe(kind int, f func(Event)) (cancel func()) {

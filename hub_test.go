@@ -12,9 +12,9 @@ func (e testEvent) Kind() int {
 }
 
 func TestPubSub(t *testing.T) {
+	var h Hub
 	var s string
 
-	h := New()
 	h.Subscribe(testKind, func(e Event) { s = string(e.(testEvent)) })
 	h.Publish(testEvent(testValue))
 
@@ -24,9 +24,9 @@ func TestPubSub(t *testing.T) {
 }
 
 func TestCancel(t *testing.T) {
+	var h Hub
 	var called bool
 
-	h := New()
 	cancel := h.Subscribe(testKind, func(e Event) { called = true })
 	cancel()
 	h.Publish(testEvent(testValue))
