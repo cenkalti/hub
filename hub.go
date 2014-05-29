@@ -25,6 +25,7 @@ type handler struct {
 
 // Subscribe registers f for the event of a specific kind.
 func (h *Hub) Subscribe(kind int, f func(Event)) (cancel func()) {
+	var cancelled bool
 	h.m.Lock()
 	h.seq++
 	id := h.seq
@@ -35,6 +36,10 @@ func (h *Hub) Subscribe(kind int, f func(Event)) (cancel func()) {
 	h.m.Unlock()
 	return func() {
 		h.m.Lock()
+		if cancelled {
+			panic("subscription is already cancelled")
+		}
+		cancelled = true
 		a := h.subscribers[kind]
 		for i, h := range a {
 			if h.id == id {
