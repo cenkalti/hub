@@ -1,5 +1,4 @@
 // Package hub provides a simple event dispatcher for publish/subscribe pattern.
-// Optimized for publish calls.
 package hub
 
 import "sync"
@@ -11,6 +10,8 @@ type Event interface {
 
 // Hub is an event dispatcher, publishes events to the subscribers
 // which are subscribed for a specific event type.
+// Optimized for publish calls.
+// The handlers may be called in order different than they are registered.
 type Hub struct {
 	subscribers map[int][]handler
 	m           sync.RWMutex
