@@ -39,7 +39,7 @@ func (h *Hub) Subscribe(kind Kind, f func(Event)) (cancel func()) {
 	return func() {
 		h.m.Lock()
 		if cancelled {
-			panic("subscription is already cancelled")
+			return
 		}
 		cancelled = true
 		a := h.subscribers[kind]
