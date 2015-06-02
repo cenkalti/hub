@@ -1,10 +1,14 @@
-package hub
+package hub_test
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/cenkalti/hub"
+)
 
 // Different event kinds
 const (
-	happenedA = iota
+	happenedA hub.Kind = iota
 	happenedB
 	happenedC
 )
@@ -15,14 +19,14 @@ type EventA struct {
 }
 
 // Implement hub.Event interface
-func (e EventA) Kind() int { return happenedA }
+func (e EventA) Kind() hub.Kind { return happenedA }
 
 func Example() {
-	Subscribe(happenedA, func(e Event) {
+	hub.Subscribe(happenedA, func(e hub.Event) {
 		a := e.(EventA) // Cast to concrete type
 		fmt.Println(a.arg1 + a.arg2)
 	})
 
-	Publish(EventA{2, 3})
+	hub.Publish(EventA{2, 3})
 	// Output: 5
 }

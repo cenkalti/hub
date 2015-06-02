@@ -2,12 +2,12 @@ package hub
 
 import "testing"
 
-const testKind = 1
+const testKind Kind = 1
 const testValue = "foo"
 
 type testEvent string
 
-func (e testEvent) Kind() int {
+func (e testEvent) Kind() Kind {
 	return testKind
 }
 
