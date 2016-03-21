@@ -25,13 +25,14 @@ func TestPubSub(t *testing.T) {
 
 func TestCancel(t *testing.T) {
 	var h Hub
-	var called bool
+	var called int
 
-	cancel := h.Subscribe(testKind, func(e Event) { called = true })
+	cancel := h.Subscribe(testKind, func(e Event) { called += 1 })
+	h.Publish(testEvent(testValue))
 	cancel()
 	h.Publish(testEvent(testValue))
 
-	if called {
+	if called != 1 {
 		t.Error("unexpected call")
 	}
 }
