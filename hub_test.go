@@ -26,13 +26,15 @@ func TestPubSub(t *testing.T) {
 func TestCancel(t *testing.T) {
 	var h Hub
 	var called int
+	var f = func(e Event) { called += 1 }
 
-	cancel := h.Subscribe(testKind, func(e Event) { called += 1 })
-	h.Publish(testEvent(testValue))
+	_ = h.Subscribe(testKind, f)
+	cancel := h.Subscribe(testKind, f)
+	h.Publish(testEvent(testValue)) // 2 calls to f
 	cancel()
-	h.Publish(testEvent(testValue))
+	h.Publish(testEvent(testValue)) // 1 call to f
 
-	if called != 1 {
-		t.Error("unexpected call")
+	if called != 3 {
+		t.Errorf("unexpected call count: %d", called)
 	}
 }
