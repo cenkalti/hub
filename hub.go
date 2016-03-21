@@ -39,6 +39,7 @@ func (h *Hub) Subscribe(kind Kind, f func(Event)) (cancel func()) {
 	return func() {
 		h.m.Lock()
 		if cancelled {
+			h.m.Unlock()
 			return
 		}
 		cancelled = true
