@@ -3,7 +3,7 @@ package hub_test
 import (
 	"fmt"
 
-	"github.com/cenkalti/hub"
+	"github.com/cenk/hub"
 )
 
 // Different event kinds
